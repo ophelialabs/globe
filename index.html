@@ -1,0 +1,240 @@
+<html>
+  <head>
+    <title>Simple Map</title>
+<style>
+/* * Always set the map height explicitly to define the size of the div element
+ * that contains the map. 
+ */
+gmp-map-3d {
+  height: 100%;
+}
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+.toggleButton {
+    background: rgb(235, 235, 235);
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    position: fixed;
+    top: 10px;
+    left: 5%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+.toggleButton:hover {
+    background-color: #007bff;
+    color: white;
+}
+</style>
+  </head>
+  <body>
+  
+  <div id="gmp-map-3d"></div>
+
+    <button class="toggleButton" id="toggleButton">Labels</button>
+    <!-- Google Maps 3d Globe Service -->
+<script>
+(g => {
+var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window;
+b = b[c] || (b[c] = {});
+var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => {
+await (a = m.createElement("script"));
+e.set("libraries", [...r] + "");
+for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+e.set("callback", c + ".maps." + q);
+a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+d[q] = f;
+a.onerror = () => h = n(Error(p + " could not load."));
+a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+m.head.append(a)
+}));
+d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+})({
+key: "AIzaSyA6myHzS10YXdcazAFalmXvDkrYCp5cLc8",
+v: "beta"
+});
+</script>
+
+<!-- Initialize 3d Globe -->
+<script>
+async function initMap() {
+    const { Map3DElement } = await google.maps.importLibrary("maps3d");
+    const map = new Map3DElement({
+        mode: 'HYBRID'
+    });
+    document.body.append(map);
+}
+initMap();
+</script>
+
+
+	<!-- Labels Toggle 
+<script>
+let map;
+async function init() {
+    const { Map3DElement, MapMode } = await google.maps.importLibrary("maps3d");
+    map = new Map3DElement({ center: { lat: 37.79810773998413, lng: -122.41784275049939, altitude: 89.08476932205978 }, range: 6062.016931506805, tilt: 81.17100663963272, heading: -56.047035719765596, });
+    map.mode = MapMode.SATELLITE;
+    document.body.append(map);
+    // Get the button element by its ID
+    const toggleButton = document.getElementById('toggleButton');
+    toggleButton.addEventListener('click', function () {
+        // Toggle the labels.
+        if (map.mode == MapMode.SATELLITE) {
+            // Setting the map mode to HYBRID turns the labels on.
+            map.mode = MapMode.HYBRID;
+            document.getElementById('toggleButton').innerText = "Labels are on. (HYBRID)";
+        }
+        else {
+            // Setting the map mode to SATELLITE turns the labels on.
+            map.mode = MapMode.SATELLITE;
+            document.getElementById('toggleButton').innerText = "Labels are off. (SATELLITE)";
+        }
+    });
+}
+init();
+</script>
+-->
+
+	<!-- Make Polylines Clickable 
+<script>
+let map;
+async function init() {
+    const { Map3DElement, MapMode, AltitudeMode, Polyline3DInteractiveElement } = await google.maps.importLibrary("maps3d");
+    map = new Map3DElement({
+        center: { lat: 37.7927, lng: -122.4020, altitude: 65.93 }, range: 3362.87, tilt: 64.01, heading: 25.00,
+        mode: MapMode.SATELLITE,
+    });
+    document.body.append(map);
+    const polyline = new Polyline3DInteractiveElement({
+        coordinates: [
+            { lat: 37.80515638571346, lng: -122.4032569467164 },
+            { lat: 37.80337073509504, lng: -122.4012878349353 },
+            { lat: 37.79925208843463, lng: -122.3976697250461 },
+            { lat: 37.7989102378512, lng: -122.3983408725656 },
+            { lat: 37.79887832784348, lng: -122.3987094864192 },
+            { lat: 37.79786443410338, lng: -122.4066878788802 },
+            { lat: 37.79549248916587, lng: -122.4032992702785 },
+            { lat: 37.78861484290265, lng: -122.4019489189814 },
+            { lat: 37.78618687561075, lng: -122.398969592545 },
+            { lat: 37.7892310309145, lng: -122.3951458683092 },
+            { lat: 37.7916358762409, lng: -122.3981969390652 }
+        ],
+        strokeColor: 'blue',
+        outerColor: 'white',
+        strokeWidth: 10,
+        outerWidth: 0.4,
+        altitudeMode: AltitudeMode.RELATIVE_TO_GROUND, // Place it on the ground (as it has no altitude it will just be at ground height).
+        drawsOccludedSegments: true, // Show the line through the buildings or anything else that might get in the way.
+    });
+    polyline.addEventListener('gmp-click', (event) => {
+        // Toggle whether the line draws occluded segments.
+        event.target.drawsOccludedSegments = !event.target.drawsOccludedSegments;
+    });
+    map.append(polyline);
+}
+init();
+</script>
+-->
+
+<!-- Make models clickable
+<script>
+async function init() {
+    // Import the needed libraries.
+    const { Map3DElement, Model3DInteractiveElement } = await google.maps.importLibrary("maps3d");
+    const map = new Map3DElement({
+        center: { lat: 39.1178, lng: -106.4452, altitude: 4395.4952 }, range: 1500, tilt: 74, heading: 0,
+        mode: "HYBRID",
+    });
+    const model = new Model3DInteractiveElement({
+        src: 'https://maps-docs-team.web.app/assets/windmill.glb',
+        position: { lat: 39.1178, lng: -106.4452, altitude: 4495.4952 },
+        orientation: { heading: 0, tilt: 270, roll: 90 },
+        scale: .15,
+        altitudeMode: "CLAMP_TO_GROUND",
+    });
+    model.addEventListener('gmp-click', (event) => {
+        const clickedModel = event.target;
+        clickedModel.scale = Math.random() * (0.5 - 0.1) + 0.1;
+    });
+    document.body.append(map);
+    map.append(model);
+}
+init();
+</script>
+-->
+
+<!-- Search Autocomplete element (To be placed in SaturnX so search is not pinned inside of model 
+<script>
+async function initAutocomplete() {
+    const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+    const placeAutocomplete = new google.maps.places.PlaceAutocompleteElement();
+    placeAutocomplete.id = 'place-autocomplete-input';
+    const card = document.getElementById('pac-container');
+    card.appendChild(placeAutocomplete);
+    placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }) => {
+        const place = placePrediction.toPlace();
+        await place.fetchFields({ fields: ['displayName', 'location', 'id'] });
+        // If the place has a geometry, then present it on a map.
+        if (!place.location) {
+            window.alert("No viewport for input: " + place.displayName);
+            return;
+        }
+        flyToPlace(place);
+    });
+}
+const flyToPlace = async (place) => {
+    const { AltitudeMode, Polyline3DElement, Polygon3DElement, Marker3DElement } = await google.maps.importLibrary("maps3d");
+    const location = place.location;
+    // We need to find the elevation for the point so we place the marker at 50m above the elevation.
+    const elevation = await getElevationforPoint(location);
+    const marker = new Marker3DElement({
+        position: { lat: location.lat(), lng: location.lng(), altitude: elevation + 50 },
+        altitudeMode: AltitudeMode.ABSOLUTE,
+        extruded: true,
+        label: place.displayName,
+    });
+    // Add the marker.
+    map.append(marker);
+    // Fly to the marker.
+    map.flyCameraTo({
+        endCamera: {
+            center: { lat: location.lat(), lng: location.lng(), altitude: elevation + 50 },
+            tilt: 65,
+            heading: 0,
+            range: 1000
+        },
+        durationMillis: 10000,
+    });
+};
+async function getElevationforPoint(location) {
+    const { ElevationService } = await google.maps.importLibrary("elevation");
+    // Get place elevation using the ElevationService.
+    const elevatorService = new google.maps.ElevationService();
+    const elevationResponse = await elevatorService.getElevationForLocations({
+        locations: [location],
+    });
+    if (!(elevationResponse.results && elevationResponse.results.length)) {
+        window.alert(`Insufficient elevation data for place: ${place.name}`);
+        return;
+    }
+    const elevation = elevationResponse.results[0].elevation || 10;
+    return elevation;
+}
+init();
+</script>
+-->
+
+	<!-- -->
+  </body>
+</html>
